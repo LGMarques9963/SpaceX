@@ -13,6 +13,9 @@ class Capsules:
         self.tipe = dict['type']
         self.id = dict['id']
 
+    def __str__(self) -> str:
+        return f'Capsula {self.id}, Serial {self.serial}, Tipo {self.tipe} - Participou dos lançamentos: {self.launches}, reutilizado {self.reuse_count} vezes, pousou {self.water_landings} vezes na água e {self.land_landings} em terra - Última atualização: {self.last_update}'
+    
     def get_all_capsules():
         response = requests.get('https://api.spacexdata.com/v4/capsules')
         r = response.json()
@@ -40,6 +43,14 @@ class Capsules:
               yield Capsules(i)
         except:
             raise
+    
+    def get_info_capsule(id):
+        try:
+            response = requests.get('https://api.spacexdata.com/v4/capsules/%s' % id)
+            r = response.json()
+            return Capsules(r)
+        except:
+            return("")
 
 class Company:
     def __init__(self, dict):
@@ -64,3 +75,40 @@ class Company:
         response = requests.get('https://api.spacexdata.com/v4/company')
         r = response.json()
         yield Company(r)
+
+class Launches(Capsules):
+    def __init__(self, data):
+        print("Construindo objeto...")
+        self.fairings = data['fairings']
+        self.links = data['links']
+        self.static_fire_date_utc = data['static_fire_date_utc']
+        self.static_fire_date_unix = data['static_fire_date_unix']
+        self.net = data['net']
+        self.window = data['window']
+        self.rocket = data['rocket']
+        self.success = data['success']
+        self.failures = data['failures']
+        self.details = data['details']
+        self.crew = data['crew']
+        self.ships = data['ships']
+        self.capsules = data['capsules']
+        #self.capsules.append(super().get_info_capsule(self.data['capsules']))
+        self.payloads = data['payloads']
+        self.launchpad = data['launchpad']
+        self.flight_number = data['flight_number']
+        self.name = data['name']
+        self.date_utc = data['date_utc']
+        self.date_unix = data['date_unix']
+        self.date_local = data['date_local']
+        self.date_precision = data['date_precision']
+        self.upcoming = data['upcoming']
+        self.cores = data['cores']
+        self.auto_update = data['auto_update']
+        self.tbd = data['tbd']
+        self.launch_library_id = data['launch_library_id']
+        self.id = data['id']
+
+    def get_latest_launch():
+        response = requests.get('https://api.spacexdata.com/v4/launches/latest')
+        r = response.json()
+        return Launches(r)
