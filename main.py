@@ -72,6 +72,11 @@ class Company:
         self.summary = dict['summary']
         self.id = dict['id']
     
+
+    def __str__(self) -> str:
+        city = self.headquarters['city'] + ' - ' + self.headquarters['state']
+        return f'SpaceX está localizada em {city}, fundada por {self.founder} em {self.founded}, possui {self.employees} funcionários e {self.vehicles} veículos. Está avaliada em {self.valuation} de dólares'
+    
     def get_info_company():
         response = requests.get('https://api.spacexdata.com/v4/company')
         r = response.json()
