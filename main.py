@@ -1,3 +1,4 @@
+from urllib import request
 import requests
 import json
 
@@ -74,9 +75,9 @@ class Company:
     def get_info_company():
         response = requests.get('https://api.spacexdata.com/v4/company')
         r = response.json()
-        yield Company(r)
+        return Company(r)
 
-class Launches(Capsules):
+class Launches(Capsules,Rockets):
     def __init__(self, data):
         print("Construindo objeto...")
         self.fairings = data['fairings']
@@ -85,7 +86,8 @@ class Launches(Capsules):
         self.static_fire_date_unix = data['static_fire_date_unix']
         self.net = data['net']
         self.window = data['window']
-        self.rocket = data['rocket']
+        r = Rockets.get_rocket(data['rocket'])
+        self.rocket = r.name #TO-DO Get Rocket by ID
         self.success = data['success']
         self.failures = data['failures']
         self.details = data['details']
@@ -108,7 +110,83 @@ class Launches(Capsules):
         self.launch_library_id = data['launch_library_id']
         self.id = data['id']
 
+
+    def __str__(self) -> str:
+        return f'Nome: {self.name}, Foguete: {self.rocket}, Data local do lançamento: {self.date_local}, links: {self.links}'
+
     def get_latest_launch():
-        response = requests.get('https://api.spacexdata.com/v4/launches/latest')
+        response = requests.get('https://api.spacexdata.com/v5/launches/latest')
         r = response.json()
         return Launches(r)
+    
+
+    def get_all_launches():
+        response = requests.get('https://api.spacexdata.com/v5/launches')
+        r = response.json()
+        try:
+            for launch in r:
+                yield Launches(launch)
+        except:
+            raise
+
+    def get_upcoming_launch():
+        response = requests.get('https://api.spacexdata.com/v5/launches/upcoming')
+        r = response.json()
+        yield Launches(r)
+    
+    def get_info_launch(id):
+        try:
+            response = requests.get('https://api.spacexdata.com/v5/launches/%s' % id)
+            r = response.json()
+            return Launches(r)
+        except:
+            return("")
+    
+    def get_next_launch():
+        response = requests.get('https://api.spacexdata.com/v5/launches/next')
+        r = response.json()
+        return Launches(r)
+    
+
+class Rockets():
+    def __init__(self, data) -> None:
+        self.name = data['name']
+        self.tipe = data['type']
+        self.active = data['active']
+        self.stages = data['stages']
+        self.boosters = data['boosters']
+        self.cost_per_launch = data['cost_per_launch']
+        self.success_rate_pct = data['success_rate_pct']
+        self.first_flight = data['first_flight']
+        self.country = data['country']
+        self.company = data['company']
+        self.height = data['height']
+        self.diameter = data['diameter']
+        self.mass = data['mass']
+        self.payload_weights = data['payload_weights']
+        self.first_stage = data['first_stage']
+        self.second_stage = data['second_stage']
+        self.engines = data['engines']
+        self.landing_legs = data['landing_legs']
+        self.payload_weights = data['payload_weights']
+        self.flickr_images = data['flickr_images']
+        self.wikipedia = data['wikipedia']
+        self.description = data['description']
+        self.id = data['id']
+
+    def get_all_rockets():
+        response = requests.get('https://api.spacexdata.com/v4/rockets')
+        r = response.json()
+        try:
+            for rocket in r:
+                yield Rockets(rocket)
+        except:
+            raise
+    
+    def get_rocket(id):
+        try:
+            response = requests.get('https://api.spacexdata.com/v4/rockets/%s' % id)
+            r = response.json()
+            return Rockets(r)
+        except:
+            return("")
